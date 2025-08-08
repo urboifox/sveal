@@ -4,6 +4,7 @@
         content?: string;
         code?: string;
         lang?: string;
+        image?: string;
     }
 </script>
 
@@ -71,10 +72,29 @@
             controller.abort();
         };
     });
+
+    function formatCode(str: string) {
+        // Remove leading/trailing empty lines
+        str = str.replace(/^\s*\n|\n\s*$/g, '');
+
+        // Find smallest indentation across all non-empty lines
+        const indent = Math.min(
+            ...str
+                .split('\n')
+                .filter((line) => line.trim()) // ignore empty lines
+                .map((line) => line.match(/^(\s*)/)![0].length)
+        );
+
+        // Remove that indentation from each line
+        return str
+            .split('\n')
+            .map((line) => line.slice(indent))
+            .join('\n');
+    }
 </script>
 
 {#snippet code(str: string, lang: string)}
-    <pre><code>{@html hljs.highlight(str, { language: lang }).value}</code></pre>
+    <pre><code>{@html hljs.highlight(formatCode(str), { language: lang }).value}</code></pre>
 {/snippet}
 
 <div
@@ -112,6 +132,13 @@
                     <div class="w-full rounded-xl bg-neutral-950 p-4 text-start transition-colors">
                         {@render code(slide.code, slide.lang || 'html')}
                     </div>
+                {/if}
+                {#if slide.image}
+                    <img
+                        class="w-full rounded-xl object-contain"
+                        src={slide.image}
+                        alt={slide.title}
+                    />
                 {/if}
             </article>
         {/if}

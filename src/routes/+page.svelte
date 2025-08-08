@@ -5,18 +5,17 @@
 <Sveal
     slides={[
         {
-            title: 'Hello World!',
-            code: `const name = 'Fox'\nconsole.log(\`hello \${name}!\`)`,
-            lang: 'typescript'
+            title: 'Hello World!'
         },
         {
             title: 'Sveal is a presentation tool',
-            content: 'It lets you create slideshows on the fly with an array of slides.'
+            content: 'It lets you create slideshows on the fly with an array of slides.',
+            lang: 'typescript'
         },
         {
             title: 'With code highlighting!',
-            code: `process.exit(0)`,
-            lang: 'javascript'
+            code: `const name = 'Fox'\nconsole.log(\`hello \${name}!\`)`,
+            lang: 'typescript'
         }
     ]}
 />
