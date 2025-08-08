@@ -36,6 +36,7 @@
         "vite-plugin-devtools-json": "^0.2.0"
     },
     "dependencies": {
+        "@fontsource/poppins": "^5.2.6",
         "highlight.js": "^11.11.1",
         "string-dedent": "^3.0.2"
     }
