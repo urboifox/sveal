@@ -1,18 +1,9 @@
-<script lang="ts" module>
-    export interface Slide {
-        title?: string;
-        content?: string;
-        code?: string;
-        lang?: string;
-        image?: string;
-    }
-</script>
-
 <script lang="ts">
     import { cubicOut } from 'svelte/easing';
     import { fly } from 'svelte/transition';
     import hljs from 'highlight.js';
     import 'highlight.js/styles/rose-pine.css';
+    import type { Slide } from '$lib/types';
 
     interface Props {
         slides: Slide[];
@@ -91,6 +82,17 @@
             .map((line) => line.slice(indent))
             .join('\n');
     }
+
+    function escapeHtml(str: string) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function renderContent(content: string) {
+        return content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/_(.*?)_/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, (_, code) => `<code>${escapeHtml(code)}</code>`);
+    }
 </script>
 
 {#snippet code(str: string, lang: string)}
@@ -99,7 +101,7 @@
 
 <div
     class={[
-        'relative grid h-full w-full grid-cols-1 place-content-center px-3',
+        'relative grid h-full w-full grid-cols-1 place-content-center bg-[#0a0a0a] px-3 text-[#ededed]',
         cursorHidden ? 'cursor-none' : ''
     ]}
 >
@@ -113,25 +115,49 @@
         {@const visible = activeIndex === i}
         {#if visible}
             <article
-                class="mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-6 text-center"
+                class="mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-6 text-center [&_code]:rounded-md [&_code]:bg-neutral-900 [&_code]:px-1 [&_code]:text-neutral-400"
                 style="grid-area: 1/1"
                 in:fly={{ duration: 300, easing: cubicOut, y: 20, delay: 200 }}
                 out:fly={{ duration: 300, easing: cubicOut, y: -20 }}
             >
                 {#if slide.title}
-                    <h1 class="text-5xl">
+                    <h1 class="text-5xl font-semibold">
                         {slide.title}
                     </h1>
                 {/if}
                 {#if slide.content}
-                    <p class="text-xl">
-                        {slide.content}
-                    </p>
+                    {#if Array.isArray(slide.content)}
+                        <div class="space-y-1">
+                            {#each slide.content as content}
+                                <div class="text-xl">
+                                    {@html renderContent(content)}
+                                </div>
+                            {/each}
+                        </div>
+                    {:else}
+                        <div class="text-xl">
+                            {@html renderContent(slide.content)}
+                        </div>
+                    {/if}
                 {/if}
                 {#if slide.code}
-                    <div class="w-full rounded-xl bg-neutral-950 p-4 text-start transition-colors">
+                    <div class="w-full rounded-xl bg-neutral-900 p-4 text-start transition-colors">
                         {@render code(slide.code, slide.lang || 'html')}
                     </div>
+                {/if}
+                {#if slide.ul}
+                    <ul class="list-inside list-disc space-y-1 text-start text-xl">
+                        {#each slide.ul as item}
+                            <li>{@html renderContent(item)}</li>
+                        {/each}
+                    </ul>
+                {/if}
+                {#if slide.ol}
+                    <ol class="list-inside list-decimal space-y-1 text-start text-xl">
+                        {#each slide.ol as item}
+                            <li>{@html renderContent(item)}</li>
+                        {/each}
+                    </ol>
                 {/if}
                 {#if slide.image}
                     <img
